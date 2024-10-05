@@ -78,7 +78,7 @@ def extract_and_map_data():
 
     create_table(conn)
 
-    with open('schools.csv', 'r', encoding='ISO-8859-1') as file:
+    with open('schools.csv', 'r', encoding='utf-16-le') as file:
         csv_reader = csv.reader(file, delimiter='\t')
         next(csv_reader)  # Skip header row
         data = []
