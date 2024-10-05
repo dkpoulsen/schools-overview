@@ -5,6 +5,28 @@ from psycopg2.extras import RealDictCursor
 
 app = Flask(__name__)
 
+@app.route('/api/school/<int:school_id>', methods=['GET'])
+def get_school(school_id):
+    conn = connect_to_db()
+    if not conn:
+        return jsonify({"error": "Unable to connect to the database"}), 500
+
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("SELECT * FROM schools WHERE id = %s", (school_id,))
+            school = cur.fetchone()
+
+        if school:
+            return jsonify(school)
+        else:
+            return jsonify({"error": "School not found"}), 404
+
+    except psycopg2.Error as e:
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        conn.close()
+
 @app.route('/')
 def index():
     return render_template('index.html')
