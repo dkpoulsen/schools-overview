@@ -16,12 +16,14 @@
         }
         th {
             background-color: #f2f2f2;
+            position: sticky;
+            top: 0;
+            z-index: 1;
         }
-        .pagination {
-            margin-top: 20px;
-        }
-        .pagination button {
-            margin-right: 5px;
+        #loadingIndicator {
+            text-align: center;
+            padding: 10px;
+            display: none;
         }
     </style>
 </head>
@@ -39,22 +41,23 @@
         </thead>
         <tbody id="schoolsTableBody"></tbody>
     </table>
-    <div class="pagination">
-        <button id="prevPage">Previous</button>
-        <span id="currentPage"></span>
-        <button id="nextPage">Next</button>
-    </div>
+    <div id="loadingIndicator">Loading more schools...</div>
 
     <script>
         let currentPage = 1;
-        let totalPages = 1;
+        let isLoading = false;
+        let hasMoreData = true;
 
         function fetchSchools(page) {
-            fetch(`/api/schools?page=${page}&per_page=10`)
+            if (isLoading || !hasMoreData) return;
+
+            isLoading = true;
+            document.getElementById('loadingIndicator').style.display = 'block';
+
+            fetch(`/api/schools?page=${page}&per_page=20`)
                 .then(response => response.json())
                 .then(data => {
                     const tableBody = document.getElementById('schoolsTableBody');
-                    tableBody.innerHTML = '';
                     data.schools.forEach(school => {
                         const row = tableBody.insertRow();
                         row.insertCell(0).textContent = school.id;
@@ -63,33 +66,29 @@
                         row.insertCell(3).textContent = school.postnr;
                         row.insertCell(4).textContent = school.postdistrikt;
                     });
-                    currentPage = data.page;
-                    totalPages = data.total_pages;
-                    updatePagination();
+
+                    currentPage++;
+                    hasMoreData = data.page < data.total_pages;
+                    isLoading = false;
+                    document.getElementById('loadingIndicator').style.display = 'none';
                 })
-                .catch(error => console.error('Error:', error));
+                .catch(error => {
+                    console.error('Error:', error);
+                    isLoading = false;
+                    document.getElementById('loadingIndicator').style.display = 'none';
+                });
         }
 
-        function updatePagination() {
-            document.getElementById('currentPage').textContent = `Page ${currentPage} of ${totalPages}`;
-            document.getElementById('prevPage').disabled = currentPage === 1;
-            document.getElementById('nextPage').disabled = currentPage === totalPages;
+        function handleScroll() {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+                fetchSchools(currentPage);
+            }
         }
 
-        document.getElementById('prevPage').addEventListener('click', () => {
-            if (currentPage > 1) {
-                fetchSchools(currentPage - 1);
-            }
-        });
-
-        document.getElementById('nextPage').addEventListener('click', () => {
-            if (currentPage < totalPages) {
-                fetchSchools(currentPage + 1);
-            }
-        });
+        window.addEventListener('scroll', handleScroll);
 
         // Initial fetch
-        fetchSchools(1);
+        fetchSchools(currentPage);
     </script>
 </body>
 </html>
