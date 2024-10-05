@@ -1,9 +1,13 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from school_data_mapper import connect_to_db
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
 app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 @app.route('/api/schools', methods=['GET'])
 def get_schools():

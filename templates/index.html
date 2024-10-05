@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schools Data</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .pagination {
+            margin-top: 20px;
+        }
+        .pagination button {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Schools Data</h1>
+    <table id="schoolsTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Address</th>
+                <th>Postal Code</th>
+                <th>City</th>
+            </tr>
+        </thead>
+        <tbody id="schoolsTableBody"></tbody>
+    </table>
+    <div class="pagination">
+        <button id="prevPage">Previous</button>
+        <span id="currentPage"></span>
+        <button id="nextPage">Next</button>
+    </div>
+
+    <script>
+        let currentPage = 1;
+        let totalPages = 1;
+
+        function fetchSchools(page) {
+            fetch(`/api/schools?page=${page}&per_page=10`)
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('schoolsTableBody');
+                    tableBody.innerHTML = '';
+                    data.schools.forEach(school => {
+                        const row = tableBody.insertRow();
+                        row.insertCell(0).textContent = school.id;
+                        row.insertCell(1).textContent = school.inst_navn;
+                        row.insertCell(2).textContent = school.inst_adr;
+                        row.insertCell(3).textContent = school.postnr;
+                        row.insertCell(4).textContent = school.postdistrikt;
+                    });
+                    currentPage = data.page;
+                    totalPages = data.total_pages;
+                    updatePagination();
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function updatePagination() {
+            document.getElementById('currentPage').textContent = `Page ${currentPage} of ${totalPages}`;
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = currentPage === totalPages;
+        }
+
+        document.getElementById('prevPage').addEventListener('click', () => {
+            if (currentPage > 1) {
+                fetchSchools(currentPage - 1);
+            }
+        });
+
+        document.getElementById('nextPage').addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                fetchSchools(currentPage + 1);
+            }
+        });
+
+        // Initial fetch
+        fetchSchools(1);
+    </script>
+</body>
+</html>
