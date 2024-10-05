@@ -80,8 +80,8 @@ def extract_and_map_data():
 
     create_table(conn)
 
-    with open('schools.csv', 'r', encoding='utf-16-le') as file:
-        csv_reader = csv.reader(file, delimiter='\t')
+    with open('schools.csv', 'r', encoding='utf-8') as file:
+        csv_reader = csv.reader(file, delimiter=',')
         print("First few rows of the CSV file:")
         for i, row in enumerate(csv_reader):
             print(f"Row {i}: {row}")
@@ -104,6 +104,8 @@ def extract_and_map_data():
                 float(row[27]) if row[27].strip() else None
             ])
             data.append(tuple(processed_row))
+        
+        print(f"Total rows processed: {len(data)}")
 
     insert_data(conn, data)
     print(f"Inserted {len(data)} rows into the database.")
