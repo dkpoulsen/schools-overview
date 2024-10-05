@@ -2,7 +2,6 @@ import csv
 import psycopg2
 from psycopg2 import sql
 from collections import defaultdict
-import codecs
 
 def connect_to_db():
     """Connect to the PostgreSQL database."""
@@ -25,11 +24,19 @@ def create_table(conn):
         cur.execute("""
             CREATE TABLE IF NOT EXISTS schools (
                 id SERIAL PRIMARY KEY,
+                ncessch VARCHAR(12),
                 name VARCHAR(255),
-                address VARCHAR(255),
-                city VARCHAR(100),
-                state VARCHAR(50),
-                zip_code VARCHAR(20)
+                lstreet VARCHAR(255),
+                lcity VARCHAR(100),
+                lstate VARCHAR(2),
+                lzip VARCHAR(5),
+                lzip4 VARCHAR(4),
+                type INTEGER,
+                status INTEGER,
+                union VARCHAR(3),
+                ulocal INTEGER,
+                latcod NUMERIC(10, 7),
+                loncod NUMERIC(10, 7)
             )
         """)
         conn.commit()
@@ -38,8 +45,8 @@ def insert_data(conn, data):
     """Insert data into the schools table."""
     with conn.cursor() as cur:
         insert_query = sql.SQL("""
-            INSERT INTO schools (name, address, city, state, zip_code)
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO schools (ncessch, name, lstreet, lcity, lstate, lzip, lzip4, type, status, union, ulocal, latcod, loncod)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """)
         cur.executemany(insert_query, data)
         conn.commit()
@@ -52,10 +59,22 @@ def extract_and_map_data():
 
     create_table(conn)
 
-    with codecs.open('schools.csv', 'r', encoding='utf-16-le') as file:
+    with open('schools.csv', 'r', encoding='utf-8') as file:
         csv_reader = csv.reader(file)
         next(csv_reader)  # Skip header row
-        data = [tuple(row) for row in csv_reader]
+        data = []
+        for row in csv_reader:
+            # Convert empty strings to None for numeric fields
+            processed_row = [
+                row[0], row[1], row[2], row[3], row[4], row[5], row[6],
+                int(row[7]) if row[7] else None,
+                int(row[8]) if row[8] else None,
+                row[9],
+                int(row[10]) if row[10] else None,
+                float(row[11]) if row[11] else None,
+                float(row[12]) if row[12] else None
+            ]
+            data.append(tuple(processed_row))
 
     insert_data(conn, data)
     print(f"Inserted {len(data)} rows into the database.")
@@ -68,7 +87,7 @@ def extract_and_map_data():
 def generate_report_by_state(conn):
     """Generate a report of the schools by state."""
     with conn.cursor() as cur:
-        cur.execute("SELECT state, COUNT(*) AS school_count FROM schools GROUP BY state ORDER BY school_count DESC")
+        cur.execute("SELECT lstate, COUNT(*) AS school_count FROM schools GROUP BY lstate ORDER BY school_count DESC")
         rows = cur.fetchall()
 
     school_counts_by_state = defaultdict(int)
