@@ -5,6 +5,29 @@ from psycopg2.extras import RealDictCursor
 
 app = Flask(__name__)
 
+@app.route('/map')
+def map_page():
+    return render_template('map.html')
+
+@app.route('/api/school_locations')
+def get_school_locations():
+    conn = connect_to_db()
+    if not conn:
+        return jsonify({"error": "Unable to connect to the database"}), 500
+
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("SELECT id, inst_navn, latitude, longitude FROM schools WHERE latitude IS NOT NULL AND longitude IS NOT NULL")
+            schools = cur.fetchall()
+
+        return jsonify(schools)
+
+    except psycopg2.Error as e:
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        conn.close()
+
 def get_paginated_schools(cur, page, per_page, search_term=None):
     offset = (page - 1) * per_page
 
