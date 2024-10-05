@@ -80,9 +80,20 @@ def extract_and_map_data():
 
     with open('schools.csv', 'r', encoding='utf-16-le') as file:
         csv_reader = csv.reader(file, delimiter='\t')
+        print("First few rows of the CSV file:")
+        for i, row in enumerate(csv_reader):
+            print(f"Row {i}: {row}")
+            if i == 5:  # Print first 5 rows (including header)
+                break
+        
+        # Reset file pointer to the beginning
+        file.seek(0)
         next(csv_reader)  # Skip header row
         data = []
         for row in csv_reader:
+            if len(row) < 28:
+                print(f"Skipping row with insufficient data: {row}")
+                continue
             # Convert empty strings to None for numeric fields
             processed_row = [
                 row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
