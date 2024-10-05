@@ -24,34 +24,34 @@ def create_table(conn):
         cur.execute("""
             CREATE TABLE IF NOT EXISTS schools (
                 id SERIAL PRIMARY KEY,
-                hovedskole_inst VARCHAR(10),
-                inst_nr VARCHAR(10),
-                inst_navn VARCHAR(255),
-                enhedsart VARCHAR(50),
-                inst_adr VARCHAR(255),
-                postnr VARCHAR(10),
-                postdistrikt VARCHAR(100),
-                tlf_nr VARCHAR(20),
-                e_mail VARCHAR(255),
-                web_adr VARCHAR(255),
-                inst_type_nr VARCHAR(10),
-                inst_type_navn VARCHAR(100),
-                inst_type_gruppe VARCHAR(100),
-                underv_niv VARCHAR(50),
-                inst_leder VARCHAR(100),
-                cvr_nr VARCHAR(20),
-                kommune_nr VARCHAR(10),
-                adm_kommune_navn VARCHAR(100),
-                bel_kommune VARCHAR(10),
-                bel_kommune_navn VARCHAR(100),
-                bel_region VARCHAR(10),
-                region_navn VARCHAR(100),
-                ejer_kode VARCHAR(10),
-                ejerkode_navn VARCHAR(100),
-                p_nr VARCHAR(20),
-                vejkode VARCHAR(10),
-                geo_bredde_grad NUMERIC(10, 7),
-                geo_laengde_grad NUMERIC(10, 7)
+                hovedskole_inst VARCHAR(10) NULL,
+                inst_nr VARCHAR(10) NULL,
+                inst_navn VARCHAR(255) NULL,
+                enhedsart VARCHAR(50) NULL,
+                inst_adr VARCHAR(255) NULL,
+                postnr VARCHAR(10) NULL,
+                postdistrikt VARCHAR(100) NULL,
+                tlf_nr VARCHAR(20) NULL,
+                e_mail VARCHAR(255) NULL,
+                web_adr VARCHAR(255) NULL,
+                inst_type_nr VARCHAR(10) NULL,
+                inst_type_navn VARCHAR(100) NULL,
+                inst_type_gruppe VARCHAR(100) NULL,
+                underv_niv VARCHAR(50) NULL,
+                inst_leder VARCHAR(100) NULL,
+                cvr_nr VARCHAR(20) NULL,
+                kommune_nr VARCHAR(10) NULL,
+                adm_kommune_navn VARCHAR(100) NULL,
+                bel_kommune VARCHAR(10) NULL,
+                bel_kommune_navn VARCHAR(100) NULL,
+                bel_region VARCHAR(10) NULL,
+                region_navn VARCHAR(100) NULL,
+                ejer_kode VARCHAR(10) NULL,
+                ejerkode_navn VARCHAR(100) NULL,
+                p_nr VARCHAR(20) NULL,
+                vejkode VARCHAR(10) NULL,
+                geo_bredde_grad NUMERIC(10, 7) NULL,
+                geo_laengde_grad NUMERIC(10, 7) NULL
             )
         """)
         conn.commit()
@@ -67,7 +67,9 @@ def insert_data(conn, data):
                                  geo_laengde_grad)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """)
-        cur.executemany(insert_query, data)
+        # Filter out None values to avoid inserting NULL for empty strings
+        filtered_data = [[None if val == '' else val for val in row] for row in data]
+        cur.executemany(insert_query, filtered_data)
         conn.commit()
 
 def extract_and_map_data():
@@ -94,14 +96,13 @@ def extract_and_map_data():
             if len(row) < 28:
                 print(f"Skipping row with insufficient data: {row}")
                 continue
-            # Convert empty strings to None for numeric fields
-            processed_row = [
-                row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18], row[19],
-                row[20], row[21], row[22], row[23], row[24], row[25],
-                float(row[26]) if row[26] else None,
-                float(row[27]) if row[27] else None
-            ]
+            # Convert empty strings to None for all fields
+            processed_row = [None if val.strip() == '' else val for val in row[:26]]
+            # Handle numeric fields separately
+            processed_row.extend([
+                float(row[26]) if row[26].strip() else None,
+                float(row[27]) if row[27].strip() else None
+            ])
             data.append(tuple(processed_row))
 
     insert_data(conn, data)
