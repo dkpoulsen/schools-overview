@@ -18,6 +18,9 @@ def connect_to_db():
         print(f"Unable to connect to the database: {e}")
         return None
 
+# Make the connect_to_db function available for import
+__all__ = ['connect_to_db']
+
 def create_table(conn):
     """Create the schools table if it doesn't exist."""
     with conn.cursor() as cur:
