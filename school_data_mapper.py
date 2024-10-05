@@ -1,6 +1,7 @@
 import csv
 import psycopg2
 from psycopg2 import sql
+from collections import defaultdict
 
 def connect_to_db():
     """Connect to the PostgreSQL database."""
@@ -58,7 +59,29 @@ def extract_and_map_data():
     insert_data(conn, data)
     print(f"Inserted {len(data)} rows into the database.")
 
+    # Generate and print the report
+    generate_report_by_state(conn)
+
     conn.close()
+
+def generate_report_by_state(conn):
+    """Generate a report of the schools by state."""
+    with conn.cursor() as cur:
+        cur.execute("SELECT state, COUNT(*) AS school_count FROM schools GROUP BY state ORDER BY school_count DESC")
+        rows = cur.fetchall()
+
+    school_counts_by_state = defaultdict(int)
+    for state, count in rows:
+        school_counts_by_state[state] = count
+
+    print("Schools by State:")
+    print("-" * 40)
+    print("{:<20} {:<10}".format("State", "Schools"))
+    print("-" * 40)
+
+    for state, count in sorted(school_counts_by_state.items(), key=lambda x: x[1], reverse=True):
+        print("{:<20} {:<10}".format(state, count))
+    print("-" * 40)
 
 if __name__ == "__main__":
     extract_and_map_data()
