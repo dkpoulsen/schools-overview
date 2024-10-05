@@ -5,6 +5,34 @@ from psycopg2.extras import RealDictCursor
 
 app = Flask(__name__)
 
+def get_paginated_schools(cur, page, per_page, search_term=None):
+    offset = (page - 1) * per_page
+
+    if search_term:
+        cur.execute("SELECT COUNT(*) FROM schools WHERE name ILIKE %s", (f'%{search_term}%',))
+        total_count = cur.fetchone()['count']
+
+        cur.execute("""
+            SELECT * FROM schools
+            WHERE name ILIKE %s
+            ORDER BY id
+            LIMIT %s OFFSET %s
+        """, (f'%{search_term}%', per_page, offset))
+    else:
+        cur.execute("SELECT COUNT(*) FROM schools")
+        total_count = cur.fetchone()['count']
+
+        cur.execute("""
+            SELECT * FROM schools
+            ORDER BY id
+            LIMIT %s OFFSET %s
+        """, (per_page, offset))
+
+    schools = cur.fetchall()
+    total_pages = (total_count + per_page - 1) // per_page
+
+    return schools, total_count, total_pages
+
 @app.route('/api/school/<int:school_id>', methods=['GET'])
 def get_school(school_id):
     conn = connect_to_db()
@@ -39,6 +67,7 @@ def get_schools():
 
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 10, type=int)
+    search_term = request.args.get('search', None)
 
     # Error handling for invalid page and per_page values
     if page < 1:
@@ -46,24 +75,13 @@ def get_schools():
     if per_page < 1 or per_page > 100:
         return jsonify({"error": "Per page value must be between 1 and 100"}), 400
 
-    offset = (page - 1) * per_page
-
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute("SELECT COUNT(*) FROM schools")
-            total_count = cur.fetchone()['count']
+            schools, total_count, total_pages = get_paginated_schools(cur, page, per_page, search_term)
 
             # Check if the requested page is out of range
-            total_pages = (total_count + per_page - 1) // per_page
             if page > total_pages:
                 return jsonify({"error": f"Page {page} does not exist. Total pages: {total_pages}"}), 404
-
-            cur.execute("""
-                SELECT * FROM schools
-                ORDER BY id
-                LIMIT %s OFFSET %s
-            """, (per_page, offset))
-            schools = cur.fetchall()
 
         result = {
             "schools": schools,
