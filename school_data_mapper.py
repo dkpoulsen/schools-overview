@@ -123,7 +123,7 @@ def generate_report_by_region(conn):
 
     school_counts_by_region = defaultdict(int)
     for region, count in rows:
-        school_counts_by_region[region] = count
+        school_counts_by_region[region or "Unknown"] = count
 
     print("Schools by Region:")
     print("-" * 50)
@@ -131,7 +131,7 @@ def generate_report_by_region(conn):
     print("-" * 50)
 
     for region, count in sorted(school_counts_by_region.items(), key=lambda x: x[1], reverse=True):
-        print("{:<30} {:<10}".format(region, count))
+        print("{:<30} {:<10}".format(region or "Unknown", count))
     print("-" * 50)
 
 if __name__ == "__main__":
