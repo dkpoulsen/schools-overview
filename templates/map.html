@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +13,7 @@
         }
     </style>
 </head>
+
 <body>
     <h1>School Locations Map</h1>
     <div id="map"></div>
@@ -28,7 +30,7 @@
             .then(response => response.json())
             .then(schools => {
                 schools.forEach(school => {
-                    L.marker([school.latitude, school.longitude])
+                    L.marker([school.geo_bredde_grad, school.geo_laengde_grad])
                         .addTo(map)
                         .bindPopup(`<b>${school.inst_navn}</b><br>ID: ${school.id}`);
                 });
@@ -36,4 +38,5 @@
             .catch(error => console.error('Error fetching school locations:', error));
     </script>
 </body>
+
 </html>
