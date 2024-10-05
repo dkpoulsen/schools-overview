@@ -80,8 +80,8 @@ def extract_and_map_data():
 
     create_table(conn)
 
-    with open('schools.csv', 'r', encoding='utf-8') as file:
-        csv_reader = csv.reader(file, delimiter=',')
+    with open('schools.csv', 'r', encoding='utf-16-le') as file:
+        csv_reader = csv.reader(file, delimiter=';')
         print("First few rows of the CSV file:")
         for i, row in enumerate(csv_reader):
             print(f"Row {i}: {row}")
@@ -97,11 +97,11 @@ def extract_and_map_data():
                 print(f"Skipping row with insufficient data: {row}")
                 continue
             # Convert empty strings to None for all fields
-            processed_row = [None if val.strip() == '' else val for val in row[:26]]
+            processed_row = [None if val.strip() == '' else val.strip() for val in row[:26]]
             # Handle numeric fields separately
             processed_row.extend([
-                float(row[26]) if row[26].strip() else None,
-                float(row[27]) if row[27].strip() else None
+                float(row[26].replace(',', '.')) if row[26].strip() else None,
+                float(row[27].replace(',', '.')) if row[27].strip() else None
             ])
             data.append(tuple(processed_row))
         
