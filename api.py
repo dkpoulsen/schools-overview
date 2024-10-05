@@ -39,12 +39,24 @@ def get_schools():
 
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 10, type=int)
+
+    # Error handling for invalid page and per_page values
+    if page < 1:
+        return jsonify({"error": "Page number must be 1 or greater"}), 400
+    if per_page < 1 or per_page > 100:
+        return jsonify({"error": "Per page value must be between 1 and 100"}), 400
+
     offset = (page - 1) * per_page
 
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute("SELECT COUNT(*) FROM schools")
             total_count = cur.fetchone()['count']
+
+            # Check if the requested page is out of range
+            total_pages = (total_count + per_page - 1) // per_page
+            if page > total_pages:
+                return jsonify({"error": f"Page {page} does not exist. Total pages: {total_pages}"}), 404
 
             cur.execute("""
                 SELECT * FROM schools
@@ -58,7 +70,7 @@ def get_schools():
             "page": page,
             "per_page": per_page,
             "total_count": total_count,
-            "total_pages": (total_count + per_page - 1) // per_page
+            "total_pages": total_pages
         }
 
         return jsonify(result)
