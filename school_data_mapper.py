@@ -6,11 +6,11 @@ def connect_to_db():
     """Connect to the PostgreSQL database."""
     try:
         conn = psycopg2.connect(
-            dbname="your_database_name",
-            user="your_username",
-            password="your_password",
-            host="your_host",
-            port="your_port"
+            dbname="schools_db",
+            user="schools_user",
+            password="schools_password",
+            host="localhost",
+            port="5432"
         )
         return conn
     except psycopg2.Error as e:
