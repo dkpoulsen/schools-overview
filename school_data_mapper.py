@@ -2,6 +2,7 @@ import csv
 import psycopg2
 from psycopg2 import sql
 from collections import defaultdict
+import codecs
 
 def connect_to_db():
     """Connect to the PostgreSQL database."""
@@ -51,7 +52,7 @@ def extract_and_map_data():
 
     create_table(conn)
 
-    with open('schools.csv', 'r') as file:
+    with codecs.open('schools.csv', 'r', encoding='utf-16-le') as file:
         csv_reader = csv.reader(file)
         next(csv_reader)  # Skip header row
         data = [tuple(row) for row in csv_reader]
