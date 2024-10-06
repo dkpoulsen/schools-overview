@@ -185,9 +185,11 @@
             console.log('Applied filters:', filters);
         }
 
-        filterButton.addEventListener('click', () => {
+        function toggleFilterPopover() {
             filterPopover.style.display = filterPopover.style.display === 'none' ? 'block' : 'none';
-        });
+        }
+
+        filterButton.addEventListener('click', toggleFilterPopover);
 
         applyFiltersButton.addEventListener('click', () => {
             const selectedFilters = Array.from(document.querySelectorAll('input[name="inst_type"]:checked'))
