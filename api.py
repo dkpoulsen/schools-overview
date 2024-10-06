@@ -13,7 +13,7 @@ def get_inst_types():
 
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute("SELECT DISTINCT inst_type_nr, inst_type FROM schools ORDER BY inst_type_nr")
+            cur.execute("SELECT DISTINCT inst_type_nr, inst_type_navn FROM schools ORDER BY inst_type_nr")
             inst_types = cur.fetchall()
 
         return jsonify(inst_types)
