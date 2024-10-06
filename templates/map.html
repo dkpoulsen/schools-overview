@@ -238,6 +238,28 @@
             console.log('Applied kommune filters:', kommuneFilters);
         }
 
+        function loadSchools() {
+            loading.style.display = 'block';
+            fetch('/api/school_locations')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(schools => {
+                    allSchools = schools;
+                    displayFilteredSchools([], []); // Display all schools initially
+                })
+                .catch(error => {
+                    console.error('Error fetching school locations:', error);
+                    schoolCount.textContent = 'Error loading school data';
+                })
+                .finally(() => {
+                    loading.style.display = 'none';
+                });
+        }
+
         function toggleFilterPopover(event) {
             event.preventDefault();
             event.stopPropagation();
@@ -255,6 +277,8 @@
                 .map(checkbox => checkbox.value);
             displayFilteredSchools(selectedInstTypes, selectedKommuner);
             filterPopover.style.display = 'none';
+            console.log('Selected inst_types:', selectedInstTypes);
+            console.log('Selected kommuner:', selectedKommuner);
         });
 
         loadFilters();
