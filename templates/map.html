@@ -180,6 +180,9 @@
             });
             map.addLayer(markers);
             schoolCount.textContent = `Total schools displayed: ${filteredSchools.length}`;
+            
+            console.log('Filtered schools:', filteredSchools);
+            console.log('Applied filters:', filters);
         }
 
         filterButton.addEventListener('click', () => {

@@ -36,7 +36,7 @@ def get_school_locations():
 
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute("SELECT id, inst_navn, geo_bredde_grad, geo_laengde_grad FROM schools WHERE geo_bredde_grad IS NOT NULL AND geo_laengde_grad IS NOT NULL")
+            cur.execute("SELECT id, inst_navn, geo_bredde_grad, geo_laengde_grad, inst_type_navn FROM schools WHERE geo_bredde_grad IS NOT NULL AND geo_laengde_grad IS NOT NULL")
             schools = cur.fetchall()
 
         return jsonify(schools)
