@@ -37,7 +37,7 @@
         }
         #filterPopover {
             position: absolute;
-            top: 10px;
+            top: 50px;
             right: 10px;
             background-color: white;
             border: 1px solid #ccc;
@@ -45,6 +45,8 @@
             border-radius: 5px;
             z-index: 1000;
             display: none;
+            max-height: 300px;
+            overflow-y: auto;
         }
         #filterButton {
             position: absolute;
@@ -90,7 +92,12 @@
 
         function loadInstTypes() {
             fetch('/api/inst_types')
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(instTypes => {
                     instTypeFilters.innerHTML = instTypes.map(type => `
                         <div>
@@ -98,6 +105,10 @@
                             <label for="type_${type.inst_type_nr}">${type.inst_type} (${type.inst_type_nr})</label>
                         </div>
                     `).join('');
+                })
+                .catch(error => {
+                    console.error('Error loading institution types:', error);
+                    instTypeFilters.innerHTML = '<p>Error loading institution types. Please try again later.</p>';
                 });
         }
 
