@@ -185,13 +185,15 @@
             console.log('Applied filters:', filters);
         }
 
-        function toggleFilterPopover() {
+        function toggleFilterPopover(event) {
+            event.stopPropagation();
             filterPopover.style.display = filterPopover.style.display === 'none' ? 'block' : 'none';
         }
 
         filterButton.addEventListener('click', toggleFilterPopover);
 
-        applyFiltersButton.addEventListener('click', () => {
+        applyFiltersButton.addEventListener('click', (event) => {
+            event.stopPropagation();
             const selectedFilters = Array.from(document.querySelectorAll('input[name="inst_type"]:checked'))
                 .map(checkbox => checkbox.value);
             displayFilteredSchools(selectedFilters);
@@ -206,6 +208,15 @@
             if (!filterPopover.contains(event.target) && event.target !== filterButton) {
                 filterPopover.style.display = 'none';
             }
+        });
+
+        // Prevent map interactions from interfering with filter button
+        map.on('zoom', function(e) {
+            L.DomEvent.stopPropagation(e);
+        });
+
+        filterPopover.addEventListener('click', function(e) {
+            e.stopPropagation();
         });
     </script>
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
