@@ -215,8 +215,21 @@
             L.DomEvent.stopPropagation(e);
         });
 
+        map.on('click', function(e) {
+            L.DomEvent.stopPropagation(e);
+        });
+
         filterPopover.addEventListener('click', function(e) {
             e.stopPropagation();
+        });
+
+        // Ensure filter button remains clickable
+        filterButton.addEventListener('mousedown', function(e) {
+            L.DomEvent.stopPropagation(e);
+        });
+
+        filterButton.addEventListener('dblclick', function(e) {
+            L.DomEvent.stopPropagation(e);
         });
     </script>
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
