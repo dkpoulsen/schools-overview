@@ -131,8 +131,8 @@
                     instTypes = types;
                     instTypeFilters.innerHTML = types.map(type => `
                         <div>
-                            <input type="checkbox" id="type_${type.inst_type_nr}" name="inst_type" value="${type.inst_type_nr}">
-                            <label for="type_${type.inst_type_nr}">${type.inst_type_nr}</label>
+                            <input type="checkbox" id="type_${type.inst_type_nr}" name="inst_type" value="${type.inst_type_navn}">
+                            <label for="type_${type.inst_type_nr}">${type.inst_type_navn}</label>
                         </div>
                     `).join('');
                 })
@@ -171,12 +171,12 @@
             markers = L.markerClusterGroup();
             
             const filteredSchools = filters.length > 0
-                ? allSchools.filter(school => filters.includes(school.inst_type_nr))
+                ? allSchools.filter(school => filters.includes(school.inst_type_navn))
                 : allSchools;
 
             filteredSchools.forEach(school => {
                 markers.addLayer(L.marker([school.geo_bredde_grad, school.geo_laengde_grad])
-                    .bindPopup(`<b>${school.inst_navn}</b><br>ID: ${school.id}<br>Type: ${school.inst_type_nr}`));
+                    .bindPopup(`<b>${school.inst_navn}</b><br>ID: ${school.id}<br>Type: ${school.inst_type_navn}`));
             });
             map.addLayer(markers);
             schoolCount.textContent = `Total schools displayed: ${filteredSchools.length}`;
@@ -188,7 +188,7 @@
 
         applyFiltersButton.addEventListener('click', () => {
             const selectedFilters = Array.from(document.querySelectorAll('input[name="inst_type"]:checked'))
-                .map(checkbox => parseInt(checkbox.value));
+                .map(checkbox => checkbox.value);
             displayFilteredSchools(selectedFilters);
             filterPopover.style.display = 'none';
         });
