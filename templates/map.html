@@ -186,6 +186,7 @@
         }
 
         function toggleFilterPopover(event) {
+            event.preventDefault();
             event.stopPropagation();
             filterPopover.style.display = filterPopover.style.display === 'none' ? 'block' : 'none';
         }
@@ -193,6 +194,7 @@
         filterButton.addEventListener('click', toggleFilterPopover);
 
         applyFiltersButton.addEventListener('click', (event) => {
+            event.preventDefault();
             event.stopPropagation();
             const selectedFilters = Array.from(document.querySelectorAll('input[name="inst_type"]:checked'))
                 .map(checkbox => checkbox.value);
@@ -225,11 +227,21 @@
 
         // Ensure filter button remains clickable
         filterButton.addEventListener('mousedown', function(e) {
-            L.DomEvent.stopPropagation(e);
+            e.preventDefault();
+            e.stopPropagation();
         });
 
         filterButton.addEventListener('dblclick', function(e) {
-            L.DomEvent.stopPropagation(e);
+            e.preventDefault();
+            e.stopPropagation();
+        });
+
+        // Prevent default behavior for all events on the filter button
+        ['click', 'mousedown', 'mouseup', 'touchstart', 'touchend'].forEach(eventType => {
+            filterButton.addEventListener(eventType, function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }, { passive: false });
         });
     </script>
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
