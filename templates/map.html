@@ -63,7 +63,7 @@
         #filterButton:hover {
             background-color: #f0f0f0;
         }
-        #instTypeFilters {
+        #instTypeFilters, #kommuneFilters {
             max-height: 200px;
             overflow-y: auto;
             margin-bottom: 10px;
@@ -134,6 +134,8 @@
     <div id="filterPopover">
         <h3>Filter by Institution Type</h3>
         <div id="instTypeFilters"></div>
+        <h3>Filter by Kommune</h3>
+        <div id="kommuneFilters"></div>
         <button id="applyFilters">Apply Filters</button>
     </div>
 
@@ -159,28 +161,36 @@
         });
 
         let instTypes = [];
+        let kommuneList = [];
 
-        function loadInstTypes() {
-            fetch('/api/inst_types')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(types => {
-                    instTypes = types;
-                    instTypeFilters.innerHTML = types.map(type => `
-                        <div>
-                            <input type="checkbox" id="type_${type.inst_type_nr}" name="inst_type" value="${type.inst_type_navn}">
-                            <label for="type_${type.inst_type_nr}">${type.inst_type_navn}</label>
-                        </div>
-                    `).join('');
-                })
-                .catch(error => {
-                    console.error('Error loading institution types:', error);
-                    instTypeFilters.innerHTML = '<p>Error loading institution types. Please try again later.</p>';
-                });
+        function loadFilters() {
+            Promise.all([
+                fetch('/api/inst_types').then(response => response.json()),
+                fetch('/api/kommune_list').then(response => response.json())
+            ])
+            .then(([types, kommuner]) => {
+                instTypes = types;
+                kommuneList = kommuner;
+
+                instTypeFilters.innerHTML = types.map(type => `
+                    <div>
+                        <input type="checkbox" id="type_${type.inst_type_nr}" name="inst_type" value="${type.inst_type_navn}">
+                        <label for="type_${type.inst_type_nr}">${type.inst_type_navn}</label>
+                    </div>
+                `).join('');
+
+                kommuneFilters.innerHTML = kommuner.map(kommune => `
+                    <div>
+                        <input type="checkbox" id="kommune_${kommune}" name="kommune" value="${kommune}">
+                        <label for="kommune_${kommune}">${kommune}</label>
+                    </div>
+                `).join('');
+            })
+            .catch(error => {
+                console.error('Error loading filters:', error);
+                instTypeFilters.innerHTML = '<p>Error loading filters. Please try again later.</p>';
+                kommuneFilters.innerHTML = '<p>Error loading filters. Please try again later.</p>';
+            });
         }
 
         function loadSchools(filters = []) {
@@ -205,25 +215,27 @@
                 });
         }
 
-        function displayFilteredSchools(filters) {
+        function displayFilteredSchools(instTypeFilters, kommuneFilters) {
             if (markers) {
                 map.removeLayer(markers);
             }
             markers = L.markerClusterGroup();
             
-            const filteredSchools = filters.length > 0
-                ? allSchools.filter(school => filters.includes(school.inst_type_navn))
-                : allSchools;
+            const filteredSchools = allSchools.filter(school => 
+                (instTypeFilters.length === 0 || instTypeFilters.includes(school.inst_type_navn)) &&
+                (kommuneFilters.length === 0 || kommuneFilters.includes(school.adm_kommune_navn))
+            );
 
             filteredSchools.forEach(school => {
                 markers.addLayer(L.marker([school.geo_bredde_grad, school.geo_laengde_grad])
-                    .bindPopup(`<b>${school.inst_navn}</b><br>ID: ${school.id}<br>Type: ${school.inst_type_navn}<br><a href="#" onclick="showSchoolDetails(${school.id}); return false;">More details</a>`));
+                    .bindPopup(`<b>${school.inst_navn}</b><br>ID: ${school.id}<br>Type: ${school.inst_type_navn}<br>Kommune: ${school.adm_kommune_navn}<br><a href="#" onclick="showSchoolDetails(${school.id}); return false;">More details</a>`));
             });
             map.addLayer(markers);
             schoolCount.textContent = `Total schools displayed: ${filteredSchools.length}`;
             
             console.log('Filtered schools:', filteredSchools);
-            console.log('Applied filters:', filters);
+            console.log('Applied inst_type filters:', instTypeFilters);
+            console.log('Applied kommune filters:', kommuneFilters);
         }
 
         function toggleFilterPopover(event) {
@@ -237,13 +249,15 @@
         applyFiltersButton.addEventListener('click', (event) => {
             event.preventDefault();
             event.stopPropagation();
-            const selectedFilters = Array.from(document.querySelectorAll('input[name="inst_type"]:checked'))
+            const selectedInstTypes = Array.from(document.querySelectorAll('input[name="inst_type"]:checked'))
                 .map(checkbox => checkbox.value);
-            displayFilteredSchools(selectedFilters);
+            const selectedKommuner = Array.from(document.querySelectorAll('input[name="kommune"]:checked'))
+                .map(checkbox => checkbox.value);
+            displayFilteredSchools(selectedInstTypes, selectedKommuner);
             filterPopover.style.display = 'none';
         });
 
-        loadInstTypes();
+        loadFilters();
         loadSchools();
 
         function showSchoolDetails(schoolId) {

@@ -24,6 +24,25 @@ def get_inst_types():
     finally:
         conn.close()
 
+@app.route('/api/kommune_list')
+def get_kommune_list():
+    conn = connect_to_db()
+    if not conn:
+        return jsonify({"error": "Unable to connect to the database"}), 500
+
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("SELECT DISTINCT adm_kommune_navn FROM schools ORDER BY adm_kommune_navn")
+            kommune_list = [row['adm_kommune_navn'] for row in cur.fetchall()]
+
+        return jsonify(kommune_list)
+
+    except psycopg2.Error as e:
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        conn.close()
+
 @app.route('/map')
 def map_page():
     return render_template('map.html')
