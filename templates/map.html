@@ -35,6 +35,23 @@
             border-radius: 5px;
             display: none;
         }
+        #filterPopover {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: white;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 1000;
+            display: none;
+        }
+        #filterButton {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
     </style>
 </head>
 
@@ -43,42 +60,96 @@
     <div id="map"></div>
     <div id="schoolCount"></div>
     <div id="loading">Loading school data...</div>
+    <button id="filterButton">Filter</button>
+    <div id="filterPopover">
+        <h3>Filter by Institution Type</h3>
+        <div id="instTypeFilters"></div>
+        <button id="applyFilters">Apply Filters</button>
+    </div>
 
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
         const map = L.map('map').setView([56.2639, 9.5018], 7); // Center on Denmark
         const loading = document.getElementById('loading');
         const schoolCount = document.getElementById('schoolCount');
+        const filterButton = document.getElementById('filterButton');
+        const filterPopover = document.getElementById('filterPopover');
+        const instTypeFilters = document.getElementById('instTypeFilters');
+        const applyFiltersButton = document.getElementById('applyFilters');
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        loading.style.display = 'block';
+        let markers;
+        let allSchools;
 
-        fetch('/api/school_locations')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(schools => {
-                const markers = L.markerClusterGroup();
-                schools.forEach(school => {
-                    markers.addLayer(L.marker([school.geo_bredde_grad, school.geo_laengde_grad])
-                        .bindPopup(`<b>${school.inst_navn}</b><br>ID: ${school.id}`));
+        filterButton.addEventListener('click', () => {
+            filterPopover.style.display = filterPopover.style.display === 'none' ? 'block' : 'none';
+        });
+
+        function loadInstTypes() {
+            fetch('/api/inst_types')
+                .then(response => response.json())
+                .then(instTypes => {
+                    instTypeFilters.innerHTML = instTypes.map(type => `
+                        <div>
+                            <input type="checkbox" id="type_${type.inst_type_nr}" name="inst_type" value="${type.inst_type_nr}">
+                            <label for="type_${type.inst_type_nr}">${type.inst_type} (${type.inst_type_nr})</label>
+                        </div>
+                    `).join('');
                 });
-                map.addLayer(markers);
-                schoolCount.textContent = `Total schools displayed: ${schools.length}`;
-            })
-            .catch(error => {
-                console.error('Error fetching school locations:', error);
-                schoolCount.textContent = 'Error loading school data';
-            })
-            .finally(() => {
-                loading.style.display = 'none';
+        }
+
+        function loadSchools(filters = []) {
+            loading.style.display = 'block';
+            fetch('/api/school_locations')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(schools => {
+                    allSchools = schools;
+                    displayFilteredSchools(filters);
+                })
+                .catch(error => {
+                    console.error('Error fetching school locations:', error);
+                    schoolCount.textContent = 'Error loading school data';
+                })
+                .finally(() => {
+                    loading.style.display = 'none';
+                });
+        }
+
+        function displayFilteredSchools(filters) {
+            if (markers) {
+                map.removeLayer(markers);
+            }
+            markers = L.markerClusterGroup();
+            
+            const filteredSchools = filters.length > 0
+                ? allSchools.filter(school => filters.includes(school.inst_type_nr))
+                : allSchools;
+
+            filteredSchools.forEach(school => {
+                markers.addLayer(L.marker([school.geo_bredde_grad, school.geo_laengde_grad])
+                    .bindPopup(`<b>${school.inst_navn}</b><br>ID: ${school.id}<br>Type: ${school.inst_type_nr}`));
             });
+            map.addLayer(markers);
+            schoolCount.textContent = `Total schools displayed: ${filteredSchools.length}`;
+        }
+
+        applyFiltersButton.addEventListener('click', () => {
+            const selectedFilters = Array.from(document.querySelectorAll('input[name="inst_type"]:checked'))
+                .map(checkbox => parseInt(checkbox.value));
+            displayFilteredSchools(selectedFilters);
+            filterPopover.style.display = 'none';
+        });
+
+        loadInstTypes();
+        loadSchools();
     </script>
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />

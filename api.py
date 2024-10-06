@@ -5,6 +5,25 @@ from psycopg2.extras import RealDictCursor
 
 app = Flask(__name__)
 
+@app.route('/api/inst_types')
+def get_inst_types():
+    conn = connect_to_db()
+    if not conn:
+        return jsonify({"error": "Unable to connect to the database"}), 500
+
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("SELECT DISTINCT inst_type_nr, inst_type FROM schools ORDER BY inst_type_nr")
+            inst_types = cur.fetchall()
+
+        return jsonify(inst_types)
+
+    except psycopg2.Error as e:
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        conn.close()
+
 @app.route('/map')
 def map_page():
     return render_template('map.html')
