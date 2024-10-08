@@ -33,7 +33,7 @@ def get_kommune_list():
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute("SELECT DISTINCT adm_kommune_navn FROM schools ORDER BY adm_kommune_navn")
-            kommune_list = [row['adm_kommune_navn'] for row in cur.fetchall()]
+            kommune_list = [row['adm_kommune_navn'] for row in  cur.fetchall()]
 
         return jsonify(kommune_list)
 
