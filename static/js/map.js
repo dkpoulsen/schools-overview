@@ -25,30 +25,30 @@ function loadFilters() {
         fetch('/api/inst_types').then(response => response.json()),
         fetch('/api/kommune_list').then(response => response.json())
     ])
-    .then(([types, kommuner]) => {
-        instTypes = types;
-        kommuneList = kommuner;
+        .then(([types, kommuner]) => {
+            instTypes = types;
+            kommuneList = kommuner;
 
-        instTypeFilters.innerHTML = types.map(type => `
+            instTypeFilters.innerHTML = types.map(type => `
             <div>
                 <input type="checkbox" id="type_${type.inst_type_nr}" name="inst_type" value="${type.inst_type_navn}">
                 <label for="type_${type.inst_type_nr}">${type.inst_type_navn}</label>
             </div>
         `).join('');
 
-        kommuneFilters.innerHTML = kommuner.map(kommune => `
+            kommuneFilters.innerHTML = kommuner.map(kommune => `
             <div>
                 <input type="checkbox" id="kommune_${kommune}" name="kommune" value="${kommune}">
                 <label for="kommune_${kommune}">${kommune}</label>
             </div>
         `).join('');
-    })
-    .catch(error => {
-        console.error('Error loading filters:', error);
-        instTypeFilters.innerHTML = '<p>Error loading filters. Please try again later.</p>';
-        kommuneFilters.innerHTML = '<p>Error loading filters. Please try again later.</p>';
-    });
-}
+        })
+        .catch(error => {
+            console.error('Error loading filters:', error);
+            instTypeFilters.innerHTML = '<p>Error loading filters. Please try again later.</p>';
+            kommuneFilters.innerHTML = '<p>Error loading filters. Please try again later.</p>';
+        });
+}a
 
 function loadSchools(filters = []) {
     loading.style.display = 'block';
@@ -77,8 +77,8 @@ function displayFilteredSchools(instTypeFilters, kommuneFilters) {
         map.removeLayer(markers);
     }
     markers = L.markerClusterGroup();
-    
-    const filteredSchools = allSchools.filter(school => 
+
+    const filteredSchools = allSchools.filter(school =>
         (instTypeFilters.length === 0 || instTypeFilters.includes(school.inst_type_navn)) &&
         (kommuneFilters.length === 0 || kommuneFilters.includes(school.adm_kommune_navn))
     );
@@ -89,7 +89,7 @@ function displayFilteredSchools(instTypeFilters, kommuneFilters) {
     });
     map.addLayer(markers);
     schoolCount.textContent = `Total schools displayed: ${filteredSchools.length}`;
-    
+
     console.log('Filtered schools:', filteredSchools);
     console.log('Applied inst_type filters:', instTypeFilters);
     console.log('Applied kommune filters:', kommuneFilters);
@@ -117,15 +117,9 @@ function loadSchools() {
         });
 }
 
-function toggleFilterPopover(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    filterPopover.style.display = filterPopover.style.display === 'none' ? 'block' : 'none';
-}
-
 function applyFilters(event) {
-    event.preventDefault();
-    event.stopPropagation();
+    //event.preventDefault();
+    //event.stopPropagation();
     const selectedInstTypes = Array.from(document.querySelectorAll('input[name="inst_type"]:checked'))
         .map(checkbox => checkbox.value);
     const selectedKommuner = Array.from(document.querySelectorAll('input[name="kommune"]:checked'))
@@ -157,11 +151,11 @@ function showSchoolDetails(schoolId) {
             modal.style.display = 'block';
 
             const closeBtn = modal.querySelector('.close');
-            closeBtn.onclick = function() {
+            closeBtn.onclick = function () {
                 modal.style.display = 'none';
             }
 
-            window.onclick = function(event) {
+            window.onclick = function (event) {
                 if (event.target == modal) {
                     modal.style.display = 'none';
                 }
@@ -172,8 +166,6 @@ function showSchoolDetails(schoolId) {
         });
 }
 
-// Event listeners
-filterButton.addEventListener('click', toggleFilterPopover);
 applyFiltersButton.addEventListener('click', applyFilters);
 
 // Close popover when clicking outside
@@ -181,20 +173,6 @@ document.addEventListener('click', (event) => {
     if (!filterPopover.contains(event.target) && event.target !== filterButton) {
         filterPopover.style.display = 'none';
     }
-});
-
-// Prevent map interactions from interfering with filter button
-map.on('zoom', L.DomEvent.stopPropagation);
-map.on('click', L.DomEvent.stopPropagation);
-
-filterPopover.addEventListener('click', (e) => e.stopPropagation());
-
-// Ensure filter button remains clickable
-['click', 'mousedown', 'mouseup', 'touchstart', 'touchend'].forEach(eventType => {
-    filterButton.addEventListener(eventType, (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-    }, { passive: false });
 });
 
 loadFilters();
