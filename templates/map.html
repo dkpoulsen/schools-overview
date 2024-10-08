@@ -266,9 +266,7 @@
             filterPopover.style.display = filterPopover.style.display === 'none' ? 'block' : 'none';
         }
 
-        filterButton.addEventListener('click', toggleFilterPopover);
-
-        applyFiltersButton.addEventListener('click', (event) => {
+        function applyFilters(event) {
             event.preventDefault();
             event.stopPropagation();
             const selectedInstTypes = Array.from(document.querySelectorAll('input[name="inst_type"]:checked'))
@@ -279,10 +277,7 @@
             filterPopover.style.display = 'none';
             console.log('Selected inst_types:', selectedInstTypes);
             console.log('Selected kommuner:', selectedKommuner);
-        });
-
-        loadFilters();
-        loadSchools();
+        }
 
         function showSchoolDetails(schoolId) {
             fetch(`/api/school/${schoolId}`)
@@ -320,6 +315,10 @@
                 });
         }
 
+        // Event listeners
+        filterButton.addEventListener('click', toggleFilterPopover);
+        applyFiltersButton.addEventListener('click', applyFilters);
+
         // Close popover when clicking outside
         document.addEventListener('click', (event) => {
             if (!filterPopover.contains(event.target) && event.target !== filterButton) {
@@ -328,36 +327,21 @@
         });
 
         // Prevent map interactions from interfering with filter button
-        map.on('zoom', function(e) {
-            L.DomEvent.stopPropagation(e);
-        });
+        map.on('zoom', L.DomEvent.stopPropagation);
+        map.on('click', L.DomEvent.stopPropagation);
 
-        map.on('click', function(e) {
-            L.DomEvent.stopPropagation(e);
-        });
-
-        filterPopover.addEventListener('click', function(e) {
-            e.stopPropagation();
-        });
+        filterPopover.addEventListener('click', (e) => e.stopPropagation());
 
         // Ensure filter button remains clickable
-        filterButton.addEventListener('mousedown', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        });
-
-        filterButton.addEventListener('dblclick', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        });
-
-        // Prevent default behavior for all events on the filter button
         ['click', 'mousedown', 'mouseup', 'touchstart', 'touchend'].forEach(eventType => {
-            filterButton.addEventListener(eventType, function(e) {
+            filterButton.addEventListener(eventType, (e) => {
                 e.preventDefault();
                 e.stopPropagation();
             }, { passive: false });
         });
+
+        loadFilters();
+        loadSchools();
     </script>
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
