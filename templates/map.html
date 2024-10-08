@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>School Locations Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -45,8 +46,7 @@
             border-radius: 5px;
             z-index: 1000;
             display: none;
-            max-height: 300px;
-            overflow-y: auto;
+            width: 300px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
         #filterButton {
@@ -64,8 +64,6 @@
             background-color: #f0f0f0;
         }
         #instTypeFilters, #kommuneFilters {
-            max-height: 200px;
-            overflow-y: auto;
             margin-bottom: 10px;
         }
         #applyFilters {
@@ -80,6 +78,9 @@
         }
         #applyFilters:hover {
             background-color: #45a049;
+        }
+        .select2-container {
+            width: 100% !important;
         }
     </style>
     <style>
@@ -133,9 +134,9 @@
     <button id="filterButton">Filter</button>
     <div id="filterPopover">
         <h3>Filter by Institution Type</h3>
-        <div id="instTypeFilters"></div>
+        <select id="instTypeFilters" multiple="multiple"></select>
         <h3>Filter by Kommune</h3>
-        <div id="kommuneFilters"></div>
+        <select id="kommuneFilters" multiple="multiple"></select>
         <button id="applyFilters">Apply Filters</button>
     </div>
 
@@ -143,6 +144,8 @@
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="{{ url_for('static', filename='js/map.js') }}"></script>
 </body>
 

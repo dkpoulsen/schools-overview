@@ -29,19 +29,17 @@ function loadFilters() {
             instTypes = types;
             kommuneList = kommuner;
 
-            instTypeFilters.innerHTML = types.map(type => `
-            <div>
-                <input type="checkbox" id="type_${type.inst_type_nr}" name="inst_type" value="${type.inst_type_navn}">
-                <label for="type_${type.inst_type_nr}">${type.inst_type_navn}</label>
-            </div>
-        `).join('');
+            $('#instTypeFilters').select2({
+                data: types.map(type => ({ id: type.inst_type_navn, text: type.inst_type_navn })),
+                placeholder: 'Select institution types',
+                allowClear: true
+            });
 
-            kommuneFilters.innerHTML = kommuner.map(kommune => `
-            <div>
-                <input type="checkbox" id="kommune_${kommune}" name="kommune" value="${kommune}">
-                <label for="kommune_${kommune}">${kommune}</label>
-            </div>
-        `).join('');
+            $('#kommuneFilters').select2({
+                data: kommuner.map(kommune => ({ id: kommune, text: kommune })),
+                placeholder: 'Select kommuner',
+                allowClear: true
+            });
         })
         .catch(error => {
             console.error('Error loading filters:', error);
@@ -118,12 +116,8 @@ function loadSchools() {
 }
 
 function applyFilters(event) {
-    //event.preventDefault();
-    //event.stopPropagation();
-    const selectedInstTypes = Array.from(document.querySelectorAll('input[name="inst_type"]:checked'))
-        .map(checkbox => checkbox.value);
-    const selectedKommuner = Array.from(document.querySelectorAll('input[name="kommune"]:checked'))
-        .map(checkbox => checkbox.value);
+    const selectedInstTypes = $('#instTypeFilters').val();
+    const selectedKommuner = $('#kommuneFilters').val();
     displayFilteredSchools(selectedInstTypes, selectedKommuner);
     filterPopover.style.display = 'none';
     console.log('Selected inst_types:', selectedInstTypes);
