@@ -76,10 +76,11 @@ function displayFilteredSchools(instTypeFilters, kommuneFilters) {
     }
     markers = L.markerClusterGroup();
 
-    const filteredSchools = allSchools.filter(school =>
-        (instTypeFilters.length === 0 || instTypeFilters.includes(school.inst_type_navn)) &&
-        (kommuneFilters.length === 0 || kommuneFilters.includes(school.adm_kommune_navn))
-    );
+    const filteredSchools = allSchools.filter(school => {
+        const instTypeMatch = instTypeFilters.length === 0 || instTypeFilters.includes(school.inst_type_navn);
+        const kommuneMatch = kommuneFilters.length === 0 || kommuneFilters.includes(school.adm_kommune_navn);
+        return instTypeMatch && kommuneMatch;
+    });
 
     filteredSchools.forEach(school => {
         markers.addLayer(L.marker([school.geo_bredde_grad, school.geo_laengde_grad])
