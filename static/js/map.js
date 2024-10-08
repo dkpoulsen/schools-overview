@@ -48,7 +48,7 @@ function loadFilters() {
             instTypeFilters.innerHTML = '<p>Error loading filters. Please try again later.</p>';
             kommuneFilters.innerHTML = '<p>Error loading filters. Please try again later.</p>';
         });
-}a
+}
 
 function loadSchools(filters = []) {
     loading.style.display = 'block';
