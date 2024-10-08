@@ -94,6 +94,15 @@ function displayFilteredSchools(instTypeFilters, kommuneFilters) {
     console.log('Applied kommune filters:', kommuneFilters);
 }
 
+function applyFilters() {
+    const selectedInstTypes = $('#instTypeFilters').val() || [];
+    const selectedKommuner = $('#kommuneFilters').val() || [];
+    displayFilteredSchools(selectedInstTypes, selectedKommuner);
+    filterPopover.style.display = 'none';
+    console.log('Selected inst_types:', selectedInstTypes);
+    console.log('Selected kommuner:', selectedKommuner);
+}
+
 function loadSchools() {
     loading.style.display = 'block';
     fetch('/api/school_locations')
@@ -161,7 +170,9 @@ function showSchoolDetails(schoolId) {
         });
 }
 
-applyFiltersButton.addEventListener('click', applyFilters);
+applyFiltersButton.addEventListener('click', () => {
+    applyFilters();
+});
 
 // Close popover when clicking outside
 document.addEventListener('click', (event) => {
