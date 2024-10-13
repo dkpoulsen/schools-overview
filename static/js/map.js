@@ -84,8 +84,12 @@ function displayFilteredSchools(instTypeFilters, kommuneFilters) {
     });
 
     filteredSchools.forEach(school => {
-        markers.addLayer(L.marker([school.geo_bredde_grad, school.geo_laengde_grad])
-            .bindPopup(`<b>${school.inst_navn}</b><br>ID: ${school.id}<br>Type: ${school.inst_type_navn}<br>Kommune: ${school.adm_kommune_navn}<br><a href="#" onclick="showSchoolDetails(${school.id}); return false;">More details</a>`));
+        const marker = L.marker([school.geo_bredde_grad, school.geo_laengde_grad]);
+        marker.bindPopup(createPopupContent(school));
+        marker.on('click', () => {
+            marker.openPopup();
+        });
+        markers.addLayer(marker);
     });
     map.addLayer(markers);
     schoolCount.textContent = `Total schools displayed: ${filteredSchools.length}`;
@@ -93,6 +97,18 @@ function displayFilteredSchools(instTypeFilters, kommuneFilters) {
     console.log('Filtered schools:', filteredSchools);
     console.log('Applied inst_type filters:', instTypeFilters);
     console.log('Applied kommune filters:', kommuneFilters);
+}
+
+function createPopupContent(school) {
+    return `
+        <div class="school-popup">
+            <h3>${school.inst_navn}</h3>
+            <p><strong>ID:</strong> ${school.id}</p>
+            <p><strong>Type:</strong> ${school.inst_type_navn}</p>
+            <p><strong>Kommune:</strong> ${school.adm_kommune_navn}</p>
+            <button onclick="showSchoolDetails(${school.id})">More details</button>
+        </div>
+    `;
 }
 
 function applyFilters() {
