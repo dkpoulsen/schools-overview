@@ -111,6 +111,49 @@ function createPopupContent(school) {
     `;
 }
 
+function showSchoolDetails(schoolId) {
+    fetch(`/api/school/${schoolId}`)
+        .then(response => response.json())
+        .then(school => {
+            const modal = document.getElementById('schoolDetailsModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalContent = document.getElementById('modalContent');
+
+            modalTitle.textContent = school.inst_navn;
+            modalContent.innerHTML = `
+                <p><strong>ID:</strong> ${school.id}</p>
+                <p><strong>Type:</strong> ${school.inst_type_navn}</p>
+                <p><strong>Address:</strong> ${school.inst_adr}, ${school.postnr} ${school.postdistrikt}</p>
+                <p><strong>Phone:</strong> ${school.tlf_nr || 'N/A'}</p>
+                <p><strong>Email:</strong> ${school.e_mail || 'N/A'}</p>
+                <p><strong>Website:</strong> ${school.web_adr ? `<a href="${ensureHttpPrefix(school.web_adr)}" target="_blank" rel="noopener noreferrer">${school.web_adr}</a>` : 'N/A'}</p>
+            `;
+
+            modal.style.display = 'block';
+
+            const closeBtn = modal.querySelector('.close');
+            closeBtn.onclick = function () {
+                modal.style.display = 'none';
+            }
+
+            window.onclick = function (event) {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching school details:', error);
+        });
+}
+
+function ensureHttpPrefix(url) {
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        return 'http://' + url;
+    }
+    return url;
+}
+
 function applyFilters() {
     const selectedInstTypes = $('#instTypeFilters').val() || [];
     const selectedKommuner = $('#kommuneFilters').val() || [];
