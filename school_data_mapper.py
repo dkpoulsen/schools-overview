@@ -19,7 +19,7 @@ def connect_to_db():
         return None
 
 # Make the connect_to_db function available for import
-__all__ = ['connect_to_db']
+__all__ = ['connect_to_db'] 
 
 def create_table(conn):
     """Create the schools table if it doesn't exist."""
@@ -77,7 +77,7 @@ def insert_data(conn, data):
 
 def extract_and_map_data():
     """Extract data from CSV and map it to the database."""
-    conn = connect_to_db()
+    conn = connect_to_db()  
     if not conn:
         return
 

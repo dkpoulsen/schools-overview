@@ -23,7 +23,7 @@ let kommuneList = [];
 function loadFilters() {
     Promise.all([
         fetch('/api/inst_types').then(response => response.json()),
-        fetch('/api/kommune_list').then(response => response.json())
+        fetch('/api/kommune_list').then(response => response.json()).then(values => values.filter(v => v !== null))
     ])
         .then(([types, kommuner]) => {
             instTypes = types;
@@ -49,6 +49,7 @@ function loadFilters() {
 }
 
 function loadSchools(filters = []) {
+    f
     loading.style.display = 'block';
     fetch('/api/school_locations')
         .then(response => {
