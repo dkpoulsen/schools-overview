@@ -106,6 +106,10 @@ def get_school(school_id):
             school = cur.fetchone()
 
         if school:
+            # Ensure the web_adr has the correct prefix
+            if school['web_adr']:
+                if not school['web_adr'].startswith(('http://', 'https://')):
+                    school['web_adr'] = 'http://' + school['web_adr']
             return jsonify(school)
         else:
             return jsonify({"error": "School not found"}), 404
