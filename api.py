@@ -43,7 +43,7 @@ def get_kommune_list():
     finally:
         conn.close()
 
-@app.route('/map')
+@app.route('/')
 def map_page():
     return render_template('map.html')
 
@@ -93,9 +93,6 @@ def get_school(school_id):
     finally:
         conn.close()
 
-@app.route('/')
-def index():
-    return render_template('map.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
