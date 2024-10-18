@@ -23,5 +23,16 @@ services:
     depends_on:
       - db
 
+  data_mapper:
+    build:
+      context: .
+      dockerfile: Dockerfile.mapper
+    environment:
+      DATABASE_URL: postgresql://schools_user:schools_password@db/schools_db
+    depends_on:
+      - db
+    volumes:
+      - ./schools.csv:/app/schools.csv
+
 volumes:
   postgres_data:

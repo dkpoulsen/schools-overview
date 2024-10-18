@@ -2,17 +2,12 @@ import csv
 import psycopg2
 from psycopg2 import sql
 from collections import defaultdict
+import os
 
 def connect_to_db():
     """Connect to the PostgreSQL database."""
     try:
-        conn = psycopg2.connect(
-            dbname="schools_db",
-            user="schools_user",
-            password="schools_password",
-            host="localhost",
-            port="5432"
-        )
+        conn = psycopg2.connect(os.environ['DATABASE_URL'])
         return conn
     except psycopg2.Error as e:
         print(f"Unable to connect to the database: {e}")
