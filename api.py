@@ -1,9 +1,12 @@
 from flask import Flask, jsonify, request, render_template
-from school_data_mapper import connect_to_db
 import psycopg2
 from psycopg2.extras import RealDictCursor
+import os
 
 app = Flask(__name__)
+
+def connect_to_db():
+    return psycopg2.connect(os.environ['DATABASE_URL'])
 
 @app.route('/api/inst_types')
 def get_inst_types():
