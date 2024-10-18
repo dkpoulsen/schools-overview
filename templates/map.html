@@ -8,18 +8,15 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        html, body {
+            height: 100%;
             margin: 0;
-            padding: 20px;
-        }
-        h1 {
-            color: #333;
+            padding: 0;
+            font-family: Arial, sans-serif;
         }
         #map {
-            height: 600px;
+            height: 100%;
             width: 100%;
-            border: 1px solid #ddd;
         }
         #schoolCount {
             margin-top: 10px;
@@ -59,6 +56,25 @@
             border: 1px solid #ccc;
             border-radius: 3px;
             cursor: pointer;
+        }
+        #schoolCount {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            z-index: 1000;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 5px;
+            border-radius: 3px;
+        }
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 5px;
         }
         #filterButton:hover {
             background-color: #f0f0f0;
@@ -120,6 +136,7 @@
 </head>
 
 <body>
+    <div id="map"></div>
     <div id="schoolDetailsModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
@@ -127,8 +144,6 @@
             <div id="modalContent"></div>
         </div>
     </div>
-    <h1>Danish Schools Map</h1>
-    <div id="map"></div>
     <div id="schoolCount"></div>
     <div id="loading">Loading school data...</div>
     <button id="filterButton">Filter</button>
