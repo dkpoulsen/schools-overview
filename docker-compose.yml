@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_DB: schools_db
       POSTGRES_USER: schools_user
-      POSTGRES_PASSWORD: schools_password
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-schools_password}
     ports:
       - "5432:5432"
     volumes:
