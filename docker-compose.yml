@@ -32,7 +32,7 @@ services:
     depends_on:
       - db
     volumes:
-      - ./schools.csv:/app/schools.csv
+      - ./schools.csv:/app/schools.csv:ro
 
 volumes:
   postgres_data:
