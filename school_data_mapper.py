@@ -7,7 +7,8 @@ import os
 def connect_to_db():
     """Connect to the PostgreSQL database."""
     try:
-        conn = psycopg2.connect(os.environ['DATABASE_URL'])
+        print(os.environ.get('POSTGRES_USER'))
+        conn = psycopg2.connect(database=os.environ.get('POSTGRES_DB'), user=os.environ.get('POSTGRES_USER'), password=os.environ.get('POSTGRES_PASSWORD'))
         return conn
     except psycopg2.Error as e:
         print(f"Unable to connect to the database: {e}")
@@ -70,8 +71,6 @@ def insert_data(conn, data):
         cur.executemany(insert_query, filtered_data)
         conn.commit()
 
-import os
-
 def extract_and_map_data():
     """Extract data from CSV and map it to the database."""
     conn = connect_to_db()  
@@ -80,55 +79,43 @@ def extract_and_map_data():
 
     create_table(conn)
 
-    csv_path = '/app/schools.csv'
-    print(f"Attempting to open CSV file at: {csv_path}")
-    print(f"File exists: {os.path.exists(csv_path)}")
-    print(f"Is file: {os.path.isfile(csv_path)}")
-    print(f"Is directory: {os.path.isdir(csv_path)}")
+    with open('schools.csv', 'r', encoding='utf-16-le', newline='') as file:
+        csv_reader = csv.reader(file, delimiter=';')
+        print("First few rows of the CSV file:")
+        for i, row in enumerate(csv_reader):
+            print(f"Row {i}: {row}")
+            if i == 5:  # Print first 5 rows (including header)
+                break
+        
+        # Reset file pointer to the beginning
+        file.seek(0)
+        next(csv_reader)  # Skip header row
+        data = []
+        rows_processed = 0
+        for row in csv_reader:
+            rows_processed += 1
+            if len(row) < 28:
+                print(f"Skipping row {rows_processed} with insufficient data: {row}")
+                continue
+            # Convert empty strings to None for all fields
+            processed_row = [None if val.strip() == '' else val.strip() for val in row[:26]]
+            # Handle numeric fields separately
+            processed_row.extend([
+                float(row[26].replace(',', '.')) if row[26].strip() else None,
+                float(row[27].replace(',', '.')) if row[27].strip() else None
+            ])
+            data.append(tuple(processed_row))
+        
+        print(f"Total rows read: {rows_processed}")
+        print(f"Total rows processed: {len(data)}")
 
-    try:
-        with open(csv_path, 'r', encoding='utf-16-le', newline='') as file:
-            csv_reader = csv.reader(file, delimiter=';')
-            print("First few rows of the CSV file:")
-            for i, row in enumerate(csv_reader):
-                print(f"Row {i}: {row}")
-                if i == 5:  # Print first 5 rows (including header)
-                    break
-            
-            # Reset file pointer to the beginning
-            file.seek(0)
-            next(csv_reader)  # Skip header row
-            data = []
-            rows_processed = 0
-            for row in csv_reader:
-                rows_processed += 1
-                if len(row) < 28:
-                    print(f"Skipping row {rows_processed} with insufficient data: {row}")
-                    continue
-                # Convert empty strings to None for all fields
-                processed_row = [None if val.strip() == '' else val.strip() for val in row[:26]]
-                # Handle numeric fields separately
-                processed_row.extend([
-                    float(row[26].replace(',', '.')) if row[26].strip() else None,
-                    float(row[27].replace(',', '.')) if row[27].strip() else None
-                ])
-                data.append(tuple(processed_row))
-            
-            print(f"Total rows read: {rows_processed}")
-            print(f"Total rows processed: {len(data)}")
+    insert_data(conn, data)
+    print(f"Inserted {len(data)} rows into the database.")
 
-        insert_data(conn, data)
-        print(f"Inserted {len(data)} rows into the database.")
+    # Generate and print the report
+    generate_report_by_region(conn)
 
-        # Generate and print the report
-        generate_report_by_region(conn)
-
-    except IOError as e:
-        print(f"Error opening or reading the CSV file: {e}")
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-    finally:
-        conn.close()
+    conn.close()
 
 def generate_report_by_region(conn):
     """Generate a report of the schools by region."""

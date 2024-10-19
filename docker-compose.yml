@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_DB: schools_db
       POSTGRES_USER: schools_user
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-schools_password}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -19,7 +19,9 @@ services:
     ports:
       - "5001:5000"
     environment:
-      DATABASE_URL: postgresql://schools_user:schools_password@db/schools_db
+      POSTGRES_DB: schools_db
+      POSTGRES_USER: schools_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     depends_on:
       - db
 
@@ -28,7 +30,9 @@ services:
       context: .
       dockerfile: Dockerfile.mapper
     environment:
-      DATABASE_URL: postgresql://schools_user:schools_password@db/schools_db
+      POSTGRES_DB: schools_db
+      POSTGRES_USER: schools_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     depends_on:
       - db
     volumes:
