@@ -3,6 +3,8 @@ version: '3.8'
 services:
   db:
     image: postgres:13
+    networks:
+      - schools_network
     container_name: db
     environment:
       POSTGRES_DB: schools_db
@@ -17,6 +19,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    networks:
+      - schools_network
     ports:
       - "5001:5000"
     environment:
@@ -30,6 +34,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.mapper
+    networks:
+      - schools_network
     environment:
       POSTGRES_DB: schools_db
       POSTGRES_USER: schools_user
@@ -41,3 +47,7 @@ services:
 
 volumes:
   postgres_data:
+
+networks:
+  schools_network:
+    driver: bridge
