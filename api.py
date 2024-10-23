@@ -6,7 +6,13 @@ import os
 app = Flask(__name__)
 
 def connect_to_db():
-    return psycopg2.connect(database=os.environ.get('POSTGRES_DB'), user=os.environ.get('POSTGRES_USER'), password=os.environ.get('POSTGRES_PASSWORD'))
+    return psycopg2.connect(
+                database=os.environ.get('POSTGRES_DB'),
+                user=os.environ.get('POSTGRES_USER'),
+                password=os.environ.get('POSTGRES_PASSWORD'),
+                host='db',
+                port=5432
+            )
 
 @app.route('/api/inst_types')
 def get_inst_types():

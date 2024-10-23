@@ -5,14 +5,31 @@ from collections import defaultdict
 import os
 
 def connect_to_db():
-    """Connect to the PostgreSQL database."""
-    try:
-        print(os.environ.get('POSTGRES_PASSWORD'))
-        conn = psycopg2.connect(database=os.environ.get('POSTGRES_DB'), user=os.environ.get('POSTGRES_USER'), password=os.environ.get('POSTGRES_PASSWORD'), host='db', port=5432)
-        return conn
-    except psycopg2.Error as e:
-        print(f"Unable to connect to the database: {e}")
-        return None
+    """Connect to the PostgreSQL database with retries."""
+    max_retries = 30
+    retry_interval = 2  # seconds
+    
+    for attempt in range(max_retries):
+        try:
+            print(f"Attempting database connection (attempt {attempt + 1}/{max_retries})")
+            conn = psycopg2.connect(
+                database=os.environ.get('POSTGRES_DB'),
+                user=os.environ.get('POSTGRES_USER'),
+                password=os.environ.get('POSTGRES_PASSWORD'),
+                host='db',
+                port=5432
+            )
+            print("Successfully connected to database")
+            return conn
+        except psycopg2.Error as e:
+            print(f"Connection attempt {attempt + 1} failed: {e}")
+            if attempt < max_retries - 1:
+                print(f"Retrying in {retry_interval} seconds...")
+                import time
+                time.sleep(retry_interval)
+            else:
+                print("Max retries reached. Unable to connect to database.")
+                return None
 
 # Make the connect_to_db function available for import
 __all__ = ['connect_to_db'] 
@@ -137,4 +154,4 @@ def generate_report_by_region(conn):
     print("-" * 50)
 
 if __name__ == "__main__":
-    extract_and_map_data()
+    extract_and_map_data();
