@@ -7,8 +7,8 @@ import os
 def connect_to_db():
     """Connect to the PostgreSQL database."""
     try:
-        print(os.environ.get('POSTGRES_USER'))
-        conn = psycopg2.connect(database=os.environ.get('POSTGRES_DB'), user=os.environ.get('POSTGRES_USER'), password=os.environ.get('POSTGRES_PASSWORD'))
+        print(os.environ.get('POSTGRES_PASSWORD'))
+        conn = psycopg2.connect(database=os.environ.get('POSTGRES_DB'), user=os.environ.get('POSTGRES_USER'), password=os.environ.get('POSTGRES_PASSWORD'),  host='0.0.0.0', port=5432)
         return conn
     except psycopg2.Error as e:
         print(f"Unable to connect to the database: {e}")
