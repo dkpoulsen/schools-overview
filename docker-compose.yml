@@ -14,6 +14,11 @@ services:
       - "5432:5432"
     volumes:
       - ./docker_postgres_init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U schools_user -d schools_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   api:
     build:
@@ -28,7 +33,8 @@ services:
       POSTGRES_USER: schools_user
       POSTGRES_PASSWORD: ${DB_PASSWORD:-schoolspass}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   data_mapper:
     build:
