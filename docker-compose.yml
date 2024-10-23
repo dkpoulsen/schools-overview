@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_DB: schools_db
       POSTGRES_USER: schools_user
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-schoolspass}
     ports:
       - "5432:5432"
     volumes:
@@ -22,7 +22,7 @@ services:
     environment:
       POSTGRES_DB: schools_db
       POSTGRES_USER: schools_user
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-schoolspass}
     depends_on:
       - db
 
@@ -33,7 +33,7 @@ services:
     environment:
       POSTGRES_DB: schools_db
       POSTGRES_USER: schools_user
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-schoolspass}
     depends_on:
       - db
     volumes:
