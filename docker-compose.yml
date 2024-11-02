@@ -27,7 +27,7 @@ services:
     networks:
       - schools_network
     ports:
-      - "5001:5000"
+      - "8080:8080"
     environment:
       POSTGRES_DB: schools_db
       POSTGRES_USER: schools_user
@@ -47,7 +47,8 @@ services:
       POSTGRES_USER: schools_user
       POSTGRES_PASSWORD: ${DB_PASSWORD:-schoolspass}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     volumes:
       - ./schools.csv:/app/schools.csv:ro
 
