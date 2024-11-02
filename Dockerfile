@@ -7,4 +7,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["waitress-serve", "api:app"]
+CMD ["waitress-serve", "--listen=*:8080", "api:app"]
