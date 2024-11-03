@@ -27,9 +27,9 @@ services:
     networks:
       - schools_network
     ports:
-      - "8080:8080"
+      - "8080:80"
     expose:
-      - "8080"
+      - "80"
     environment:
       POSTGRES_DB: schools_db
       POSTGRES_USER: schools_user
