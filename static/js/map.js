@@ -33,7 +33,13 @@ function loadFilters() {
                 data: types.map(type => ({ id: type.inst_type_navn, text: type.inst_type_navn })),
                 placeholder: 'Select institution types',
                 allowClear: true
-            }).val('1015').trigger('change');
+            });
+
+            // After initialization, find and select the institution type with code 1015
+            const type1015 = types.find(type => type.inst_type_kode === '1015');
+            if (type1015) {
+                $('#instTypeFilters').val(type1015.inst_type_navn).trigger('change');
+            }
 
             $('#kommuneFilters').select2({
                 data: kommuner.map(kommune => ({ id: kommune, text: kommune })),
