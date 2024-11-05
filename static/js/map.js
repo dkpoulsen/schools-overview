@@ -21,7 +21,7 @@ let instTypes = [];
 let kommuneList = [];
 
 function loadFilters() {
-    Promise.all([
+    return Promise.all([
         fetch('/api/inst_types').then(response => response.json()),
         fetch('/api/kommune_list').then(response => response.json()).then(values => values.filter(v => v !== null))
     ])
@@ -35,17 +35,17 @@ function loadFilters() {
                 allowClear: true
             });
 
-            // After initialization, find and select the institution type with code 1015
-            const type1015 = types.find(type => type.inst_type_kode === '1015');
-            if (type1015) {
-                $('#instTypeFilters').val(type1015.inst_type_navn).trigger('change');
-            }
-
             $('#kommuneFilters').select2({
                 data: kommuner.map(kommune => ({ id: kommune, text: kommune })),
                 placeholder: 'Select kommuner',
                 allowClear: true
             });
+
+            // After initialization, find and select the institution type with code 1015
+            const type1015 = types.find(type => type.inst_type_nr === '1015');
+            if (type1015 != null) {
+                $('#instTypeFilters').val(type1015.inst_type_navn).trigger('change');
+            }
         })
         .catch(error => {
             console.error('Error loading filters:', error);
@@ -55,7 +55,6 @@ function loadFilters() {
 }
 
 function loadSchools(filters = []) {
-    f
     loading.style.display = 'block';
     fetch('/api/school_locations')
         .then(response => {
@@ -171,7 +170,7 @@ function applyFilters() {
 
 function loadSchools() {
     loading.style.display = 'block';
-    fetch('/api/school_locations')
+    return fetch('/api/school_locations')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -247,5 +246,10 @@ document.addEventListener('click', (event) => {
     }
 });
 
-loadFilters();
-loadSchools();
+let schools = loadSchools();
+let filters = loadFilters();
+Promise.all([schools, filters]).then(_ => {
+    const selectedInstTypes = $('#instTypeFilters').val();
+    const selectedKommuner = $('#kommuneFilters').val();
+    displayFilteredSchools(selectedInstTypes, selectedKommuner);
+});
