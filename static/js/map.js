@@ -33,7 +33,7 @@ function loadFilters() {
                 data: types.map(type => ({ id: type.inst_type_navn, text: type.inst_type_navn })),
                 placeholder: 'Select institution types',
                 allowClear: true
-            });
+            }).val('1015').trigger('change');
 
             $('#kommuneFilters').select2({
                 data: kommuner.map(kommune => ({ id: kommune, text: kommune })),
