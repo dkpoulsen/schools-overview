@@ -10,7 +10,7 @@ def connect_to_db():
                 database=os.environ.get('POSTGRES_DB'),
                 user=os.environ.get('POSTGRES_USER'),
                 password=os.environ.get('POSTGRES_PASSWORD'),
-                host='127.0.0.1',
+                host=os.environ.get('DB_HOST', 'db'),
                 port=5432
             )
 
@@ -104,4 +104,4 @@ def get_school(school_id):
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True, port=5001)
+    app.run(host='0.0.0.0', debug=True, port=5000)
