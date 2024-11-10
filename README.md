@@ -58,7 +58,15 @@ An interactive web application that displays Norwegian schools on a map with fil
 6. Access the application at `http://localhost:5000`
 
 ## Data Source
-The application uses Norwegian school data from the National School Registry (NSR) provided by the Norwegian Directorate for Education and Training.
+The application uses official Norwegian school data from the National School Registry (NSR) provided by the Norwegian Directorate for Education and Training (Utdanningsdirektoratet). The data includes:
+
+- Comprehensive list of all educational institutions in Norway
+- Geographic coordinates for mapping
+- Institution types and administrative details
+- Contact information and web addresses
+- Municipal and regional classifications
+
+Data is regularly updated from the official NSR API and includes both public and private institutions across all educational levels.
 
 ## Contributing
 Contributions are welcome! Please feel free to submit a Pull Request.
