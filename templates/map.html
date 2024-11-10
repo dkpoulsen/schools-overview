@@ -7,6 +7,7 @@
     <title>School Locations Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
         html,
         body {
@@ -74,6 +75,23 @@
         }
 
         #filterButton:hover {
+            background-color: #f0f0f0;
+        }
+
+        #github-link {
+            position: absolute;
+            top: 10px;
+            right: 60px;
+            z-index: 1000;
+            padding: 5px 10px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+
+        #github-link:hover {
             background-color: #f0f0f0;
         }
 
@@ -151,6 +169,9 @@
     </div>
     <div id="schoolCount"></div>
     <div id="loading">Loading school data...</div>
+    <a href="https://github.com/yourusername/yourrepo" target="_blank" id="github-link">
+        <i class="fab fa-github"></i> GitHub
+    </a>
     <button id="filterButton">Filter</button>
     <div id="filterPopover">
         <h3>Filter by Institution Type</h3>
