@@ -1,6 +1,6 @@
 # Danish Schools Map
 
-An interactive web application that displays Norwegian schools on a map with filtering capabilities.
+An interactive web application that displays Danish schools on a map with filtering capabilities.
 
 ## Features
 - Interactive map showing all schools in Denmark
