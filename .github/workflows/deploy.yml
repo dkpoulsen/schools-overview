@@ -49,5 +49,5 @@ jobs:
           cd ~/app && 
           docker compose down --volumes &&
           docker compose pull &&
-          docker compose up -d
+          docker compose up -d || (docker compose logs db && exit 1)
         '
