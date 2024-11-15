@@ -47,7 +47,7 @@ jobs:
       run: |
         gcloud compute ssh --zone=${{ secrets.GCE_INSTANCE_ZONE }} ${{ secrets.GCE_INSTANCE }} --command='
           cd ~/app && 
-          docker-compose down &&
-          docker-compose pull &&
-          docker-compose up -d
+          docker compose down &&
+          docker compose pull &&
+          docker compose up -d
         '
