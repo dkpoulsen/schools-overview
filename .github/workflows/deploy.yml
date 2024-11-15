@@ -35,6 +35,12 @@ jobs:
 
     - name: Copy files to GCP instance
       run: |
+        # First create the app directory with proper permissions
+        gcloud compute ssh --zone=${{ secrets.GCE_INSTANCE_ZONE }} ${{ secrets.GCE_INSTANCE }} --command='
+          sudo mkdir -p ~/app
+          sudo chown -R $USER:$USER ~/app
+        '
+        # Then copy the files
         gcloud compute scp --zone=${{ secrets.GCE_INSTANCE_ZONE }} --recurse ./* ${{ secrets.GCE_INSTANCE }}:~/app/
         
     - name: Deploy to GCP VM
