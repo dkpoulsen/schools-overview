@@ -11,6 +11,6 @@ jobs:
     with:
       issue-number: ${{ github.event.issue.number }}
       base-branch: ${{ github.event.repository.default_branch }}
-      model: openrouter/google/gemini-2.0-flash-thinking-exp:free
+      model: openrouter/deepseek/deepseek-chat
     secrets: 
       openrouter_api_key: ${{ secrets.OPENROUTER_API_KEY }}
