@@ -11,6 +11,6 @@ jobs:
     with:
       issue-number: ${{ github.event.issue.number }}
       base-branch: ${{ github.event.repository.default_branch }}
-      model: openrouter/deepseek/deepseek-chat
+      model: openrouter/deepseek/deepseek-r1
     secrets: 
       openrouter_api_key: ${{ secrets.OPENROUTER_API_KEY }}
