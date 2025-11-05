@@ -5,6 +5,7 @@ const filterButton = document.getElementById('filterButton');
 const filterPopover = document.getElementById('filterPopover');
 const instTypeFilters = document.getElementById('instTypeFilters');
 const applyFiltersButton = document.getElementById('applyFilters');
+const kommuneFilters = document.getElementById('kommuneFilters');
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -22,8 +23,8 @@ let kommuneList = [];
 
 function loadFilters() {
     return Promise.all([
-        fetch('/api/inst_types').then(response => response.json()),
-        fetch('/api/kommune_list').then(response => response.json()).then(values => values.filter(v => v !== null))
+        fetch('data/inst_types.json').then(response => response.json()),
+        fetch('data/kommune_list.json').then(response => response.json()).then(values => values.filter(v => v !== null))
     ])
         .then(([types, kommuner]) => {
             instTypes = types;
@@ -41,7 +42,6 @@ function loadFilters() {
                 allowClear: true
             });
 
-            // After initialization, find and select the institution type with code 1015
             const type1015 = types.find(type => type.inst_type_nr === '1015');
             if (type1015 != null) {
                 $('#instTypeFilters').val(type1015.inst_type_navn).trigger('change');
@@ -54,9 +54,9 @@ function loadFilters() {
         });
 }
 
-function loadSchools(filters = []) {
+function loadSchools() {
     loading.style.display = 'block';
-    fetch('/api/school_locations')
+    return fetch('data/schools.json')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -65,7 +65,7 @@ function loadSchools(filters = []) {
         })
         .then(schools => {
             allSchools = schools;
-            displayFilteredSchools(filters);
+            displayFilteredSchools([], []);
         })
         .catch(error => {
             console.error('Error fetching school locations:', error);
@@ -117,39 +117,37 @@ function createPopupContent(school) {
 }
 
 function showSchoolDetails(schoolId) {
-    fetch(`/api/school/${schoolId}`)
-        .then(response => response.json())
-        .then(school => {
-            const modal = document.getElementById('schoolDetailsModal');
-            const modalTitle = document.getElementById('modalTitle');
-            const modalContent = document.getElementById('modalContent');
+    const school = allSchools.find(s => String(s.id) === String(schoolId));
+    if (!school) {
+        console.error('School not found for id:', schoolId);
+        return;
+    }
+    const modal = document.getElementById('schoolDetailsModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalContent = document.getElementById('modalContent');
 
-            modalTitle.textContent = school.inst_navn;
-            modalContent.innerHTML = `
-                <p><strong>ID:</strong> ${school.id}</p>
-                <p><strong>Type:</strong> ${school.inst_type_navn}</p>
-                <p><strong>Address:</strong> ${school.inst_adr}, ${school.postnr} ${school.postdistrikt}</p>
-                <p><strong>Phone:</strong> ${school.tlf_nr || 'N/A'}</p>
-                <p><strong>Email:</strong> ${school.e_mail || 'N/A'}</p>
-                <p><strong>Website:</strong> ${school.web_adr ? `<a href="${ensureHttpPrefix(school.web_adr)}" target="_blank" rel="noopener noreferrer">${school.web_adr}</a>` : 'N/A'}</p>
-            `;
+    modalTitle.textContent = school.inst_navn;
+    modalContent.innerHTML = `
+        <p><strong>ID:</strong> ${school.id}</p>
+        <p><strong>Type:</strong> ${school.inst_type_navn}</p>
+        <p><strong>Address:</strong> ${school.inst_adr || ''}${school.postnr ? `, ${school.postnr}` : ''} ${school.postdistrikt || ''}</p>
+        <p><strong>Phone:</strong> ${school.tlf_nr || 'N/A'}</p>
+        <p><strong>Email:</strong> ${school.e_mail || 'N/A'}</p>
+        <p><strong>Website:</strong> ${school.web_adr ? `<a href="${ensureHttpPrefix(school.web_adr)}" target="_blank" rel="noopener noreferrer">${school.web_adr}</a>` : 'N/A'}</p>
+    `;
 
-            modal.style.display = 'block';
+    modal.style.display = 'block';
 
-            const closeBtn = modal.querySelector('.close');
-            closeBtn.onclick = function () {
-                modal.style.display = 'none';
-            }
+    const closeBtn = modal.querySelector('.close');
+    closeBtn.onclick = function () {
+        modal.style.display = 'none';
+    }
 
-            window.onclick = function (event) {
-                if (event.target == modal) {
-                    modal.style.display = 'none';
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching school details:', error);
-        });
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
 }
 
 function ensureHttpPrefix(url) {
@@ -168,72 +166,11 @@ function applyFilters() {
     console.log('Selected kommuner:', selectedKommuner);
 }
 
-function loadSchools() {
-    loading.style.display = 'block';
-    return fetch('/api/school_locations')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(schools => {
-            allSchools = schools;
-            displayFilteredSchools([], []); // Display all schools initially
-        })
-        .catch(error => {
-            console.error('Error fetching school locations:', error);
-            schoolCount.textContent = 'Error loading school data';
-        })
-        .finally(() => {
-            loading.style.display = 'none';
-        });
-}
+// (single loadSchools defined above)
 
-function applyFilters(event) {
-    const selectedInstTypes = $('#instTypeFilters').val();
-    const selectedKommuner = $('#kommuneFilters').val();
-    displayFilteredSchools(selectedInstTypes, selectedKommuner);
-    filterPopover.style.display = 'none';
-    console.log('Selected inst_types:', selectedInstTypes);
-    console.log('Selected kommuner:', selectedKommuner);
-}
+// (single applyFilters defined above)
 
-function showSchoolDetails(schoolId) {
-    fetch(`/api/school/${schoolId}`)
-        .then(response => response.json())
-        .then(school => {
-            const modal = document.getElementById('schoolDetailsModal');
-            const modalTitle = document.getElementById('modalTitle');
-            const modalContent = document.getElementById('modalContent');
-
-            modalTitle.textContent = school.inst_navn;
-            modalContent.innerHTML = `
-                <p><strong>ID:</strong> ${school.id}</p>
-                <p><strong>Type:</strong> ${school.inst_type_navn}</p>
-                <p><strong>Address:</strong> ${school.inst_adr}, ${school.postnr} ${school.postdistrikt}</p>
-                <p><strong>Phone:</strong> ${school.tlf_nr || 'N/A'}</p>
-                <p><strong>Email:</strong> ${school.e_mail || 'N/A'}</p>
-                <p><strong>Website:</strong> ${school.web_adr ? `<a href="${school.web_adr}" target="_blank">${school.web_adr}</a>` : 'N/A'}</p>
-            `;
-
-            modal.style.display = 'block';
-
-            const closeBtn = modal.querySelector('.close');
-            closeBtn.onclick = function () {
-                modal.style.display = 'none';
-            }
-
-            window.onclick = function (event) {
-                if (event.target == modal) {
-                    modal.style.display = 'none';
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching school details:', error);
-        });
-}
+// (single showSchoolDetails defined above)
 
 applyFiltersButton.addEventListener('click', () => {
     applyFilters();
