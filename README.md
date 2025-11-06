@@ -1,6 +1,7 @@
 # Danish Schools Map
 
 An interactive web application that displays Danish schools on a map with filtering capabilities.
+
 https://danish-schools-overview.netlify.app
 
 ## Features
