@@ -36,3 +36,4 @@ env/
 .aider*
 *.log
 .DS_Store
+.env
