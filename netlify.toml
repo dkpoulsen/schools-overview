@@ -1,0 +1,4 @@
+# Static site, nothing to compile: index.html, static/ and data/ ship as they are.
+[build]
+  publish = "."
+  command = ""
