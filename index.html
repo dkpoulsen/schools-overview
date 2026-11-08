@@ -102,9 +102,10 @@
 
         #title {
             margin: 0;
-            padding: 8px 12px;
-            font-size: 15px;
+            padding: 9px 13px;
+            font-size: 16px;
             font-weight: 650;
+            letter-spacing: -0.01em;
             background: rgba(255, 255, 255, 0.95);
             border: 1px solid var(--line);
             border-radius: 6px;
@@ -153,8 +154,45 @@
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
         }
 
+        .panelHeader {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin: 0 0 16px;
+        }
+
+        .panelTitle {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 650;
+            letter-spacing: -0.01em;
+        }
+
+        .panelClose {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            margin: -6px -6px -6px 0;
+            padding: 0;
+            font-size: 20px;
+            line-height: 1;
+            color: #3c4d5a;
+            background: none;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .panelClose:hover {
+            color: var(--ink);
+            background: #eef2f6;
+        }
+
         .panelGroup {
-            margin-bottom: 14px;
+            margin-bottom: 16px;
         }
 
         .panelHeading {
@@ -280,11 +318,42 @@
             background: var(--accent-hover);
         }
 
+        #applyBar {
+            margin-top: 2px;
+        }
+
         .legend {
-            margin: 12px 0 0;
+            margin: 14px 0 0;
+            padding-top: 12px;
+            border-top: 1px solid #e6ebef;
             font-size: 12.5px;
-            line-height: 1.45;
+            line-height: 1.5;
             color: var(--muted);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .legendKey {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 4px 12px;
+            margin: 0 0 6px;
+            color: var(--ink);
+        }
+
+        .legendKey span {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* swatches mirror the cluster sizes so the key shows the encoding itself */
+        .swatch {
+            display: inline-block;
+            box-sizing: border-box;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.18);
         }
 
         /* ---- bottom bar ---- */
@@ -316,6 +385,7 @@
 
         #schoolCount {
             max-width: 100%;
+            font-variant-numeric: tabular-nums;
             margin: 0;
             padding: 6px 10px;
             font-size: 13px;
@@ -537,6 +607,24 @@
             font-size: 12px;
         }
 
+        .cluster {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 650;
+            font-variant-numeric: tabular-nums;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
+        }
+
+        .school-marker {
+            filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.35));
+        }
+
         #loading {
             display: none;
             position: fixed;
@@ -587,8 +675,22 @@
                 padding: 14px 14px 18px;
             }
 
+            #applyBar {
+                position: sticky;
+                bottom: 0;
+                margin-top: 4px;
+                padding-top: 10px;
+                background: #fff;
+            }
+
             #applyFilters {
                 min-height: 46px;
+            }
+
+            .panelClose {
+                width: 44px;
+                height: 44px;
+                margin: -10px -8px -10px 0;
             }
 
             .chip,
@@ -642,6 +744,10 @@
     </header>
 
     <section id="filterPanel" hidden>
+        <div class="panelHeader">
+            <h2 class="panelTitle">Filtre</h2>
+            <button id="closePanel" class="panelClose" type="button" aria-label="Luk filtre">&times;</button>
+        </div>
         <div class="panelGroup">
             <h2 class="panelHeading">Institutionstype</h2>
             <select id="instTypeFilters" multiple></select>
@@ -654,8 +760,17 @@
             <label class="panelHeading" for="schoolSearch">Søg på skole</label>
             <input id="schoolSearch" type="search" placeholder="F.eks. Engskolen" />
         </div>
-        <button id="applyFilters">Anvend filtre</button>
-        <p class="legend">Tallene i parentes viser antal skoler. Klyngerne på kortet viser, hvor mange skoler der er samlet på stedet.</p>
+        <div id="applyBar">
+            <button id="applyFilters">Anvend filtre</button>
+        </div>
+        <div class="legend">
+            <div class="legendKey">
+                <span><span class="swatch" style="width: 12px; height: 12px; background: #2e7d32"></span>1–9</span>
+                <span><span class="swatch" style="width: 16px; height: 16px; background: #1e5b28"></span>10–99</span>
+                <span><span class="swatch" style="width: 20px; height: 20px; background: #123f1c"></span>100+</span>
+            </div>
+            Tallet i en klynge er antal skoler på stedet. Tal i parentes er skoler af den type.
+        </div>
     </section>
 
     <div id="schoolDetailsModal" class="modal">

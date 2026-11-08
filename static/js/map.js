@@ -25,6 +25,28 @@ const modalContent = document.getElementById('modalContent');
 const closeButton = modal.querySelector('.close');
 const searchInput = document.getElementById('schoolSearch');
 
+// Leaflet's stock blue pin and traffic-light clusters say nothing; one green
+// family, darker with density, keeps the map in the page's own palette.
+const MARKER_ICON = L.divIcon({
+    className: 'school-marker',
+    html: '<svg width="26" height="34" viewBox="0 0 26 34" aria-hidden="true"><path d="M13 2C7.4 2 3 6.4 3 12c0 7.6 10 20 10 20s10-12.4 10-20c0-5.6-4.4-10-10-10z" fill="#2e7d32" stroke="#17553a" stroke-width="2"/><circle cx="13" cy="12" r="4" fill="#fff"/></svg>',
+    iconSize: [26, 34],
+    iconAnchor: [13, 34],
+    popupAnchor: [0, -32]
+});
+
+function clusterIcon(cluster) {
+    const count = cluster.getChildCount();
+    const [size, fill] = count >= 100 ? [48, '#123f1c']
+        : count >= 10 ? [40, '#1e5b28']
+        : [34, '#2e7d32'];
+    return L.divIcon({
+        className: 'marker-cluster',
+        html: `<span class="cluster" style="width: ${size}px; height: ${size}px; background: ${fill}">${fmt(count)}</span>`,
+        iconSize: L.point(size, size)
+    });
+}
+
 const state = { types: [], kommuner: [], query: '', shown: 0 };
 let markers = null;
 let allSchools = null;
@@ -44,6 +66,7 @@ function setPanel(open) {
 }
 
 filterButton.addEventListener('click', () => setPanel(panel.hidden));
+document.getElementById('closePanel').addEventListener('click', () => setPanel(false));
 
 function applyFilters() {
     state.types = $('#instTypeFilters').val() || [];
@@ -122,7 +145,7 @@ function renderSchools() {
         return;
     }
 
-    markers = L.markerClusterGroup();
+    markers = L.markerClusterGroup({ iconCreateFunction: clusterIcon });
 
     const query = state.query.toLowerCase();
     const shown = allSchools.filter(school => {
@@ -135,7 +158,9 @@ function renderSchools() {
 
     shown.forEach(school => {
         const label = [school.inst_navn, school.inst_type_navn, school.adm_kommune_navn].filter(Boolean).join(', ');
-        const marker = L.marker([school.geo_bredde_grad, school.geo_laengde_grad], { alt: label, title: label });
+        const marker = L.marker([school.geo_bredde_grad, school.geo_laengde_grad], {
+            alt: label, title: label, icon: MARKER_ICON
+        });
         marker.bindPopup(popupHtml(school));
         markers.addLayer(marker);
     });
