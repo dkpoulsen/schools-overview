@@ -36,3 +36,7 @@ env/
 .aider*
 *.log
 .DS_Store
+
+# Tool caches
+.pytest_cache/
+.ruff_cache/

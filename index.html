@@ -147,6 +147,9 @@
             font-size: 28px;
             font-weight: bold;
             cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
         }
 
         .close:hover,
@@ -155,16 +158,21 @@
             text-decoration: none;
             cursor: pointer;
         }
+
+        /* focused for screen readers, not tabbed to, so no ring around the block */
+        #modalContent:focus {
+            outline: none;
+        }
     </style>
 </head>
 
 <body>
     <div id="map"></div>
     <div id="schoolDetailsModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
+        <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <button type="button" class="close" aria-label="Close">&times;</button>
             <h2 id="modalTitle"></h2>
-            <div id="modalContent"></div>
+            <div id="modalContent" tabindex="-1"></div>
         </div>
     </div>
     <div id="schoolCount"></div>

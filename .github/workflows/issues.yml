@@ -5,12 +5,14 @@ on:
 
 jobs:
   generate:
-    uses: mirrajabi/aider-github-workflows/.github/workflows/aider-issue-to-pr.yml@main
+    # Pinned to a commit so an upstream change cannot run with our secrets.
+    # yamllint disable-line rule:line-length
+    uses: mirrajabi/aider-github-workflows/.github/workflows/aider-issue-to-pr.yml@1abb8478e964ac867162c090b2deb0295628993b
     # Check if the label is 'aider'
     if: github.event.label.name == 'aider'
     with:
       issue-number: ${{ github.event.issue.number }}
       base-branch: ${{ github.event.repository.default_branch }}
       model: openrouter/deepseek/deepseek-r1
-    secrets: 
+    secrets:
       openrouter_api_key: ${{ secrets.OPENROUTER_API_KEY }}
